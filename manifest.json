@@ -1,0 +1,10 @@
+{
+  "id": "obs-pico-shogi",
+  "name": "Pico Shogi Viewer",
+  "version": "0.1.0",
+  "minAppVersion": "1.4.0",
+  "description": "コードブロックから将棋盤（pico-shogi）を埋め込み表示するプラグイン。",
+  "author": "s9r1",
+  "authorUrl": "https://github.com/s9r1",
+  "isDesktopOnly": false
+}

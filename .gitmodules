@@ -1,0 +1,3 @@
+[submodule "pico-shogi"]
+	path = pico-shogi
+	url = git@github.com:s9r1/pico-shogi.git
