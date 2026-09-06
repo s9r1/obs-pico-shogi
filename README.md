@@ -15,8 +15,8 @@ Reading mode でも Live Preview でも、次のコードブロックを書く�
 ````markdown
 ```shogi-board
 kif: startpos moves 7g7f 3c3d 8i7g 5a4b 7g6e 6a6b 7f7e 6c6d 8h2b+ 3a2b B*5e B*3c 5e6d 6b6c
-nanteme: 6
-teban: gote
+start: 6
+reverse: true
 ```
 ````
 
@@ -27,9 +27,11 @@ teban: gote
 | キー | 必須 | 説明 |
 |------|------|------|
 | `kif` | はい | SFEN 局面 または USI 指し手列 |
-| `teban` | いいえ | 盤の向き。`sente` / `gote`。既定は `sente` |
-| `nanteme` | いいえ | 初期表示の手数。負値は末尾からの相対（`-1` で最終手） |
+| `reverse` | いいえ | truthy（`true`, `yes`, `1`, または値なし）で盤を反転し後手視点で表示。既定は先手視点 |
+| `start` | いいえ | 初期表示の手数。負値は末尾からの相対（`-1` で最終手） |
 | `no-slider` | いいえ | truthy（`true`, `yes`, `1`, または値なし）でスライダー・再生ボタンを隠す |
+
+`reverse` / `no-slider` は `false` / `no` / `0` を指定したときだけ無効になります。
 
 ### Live Preview の挙動
 

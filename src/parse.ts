@@ -2,8 +2,10 @@ import { parseYaml } from "obsidian";
 
 export type BoardAttrs = {
   kif: string;
-  teban?: string;
-  nanteme?: string;
+  /** 盤を反転して後手視点で表示する。 */
+  reverse?: boolean;
+  /** 初期表示手数（負値は末尾からの相対）。 */
+  start?: string;
   noSlider?: boolean;
 };
 
@@ -37,25 +39,25 @@ export function parseSource(source: string): ParseResult {
 
   const attrs: BoardAttrs = { kif: kifRaw };
 
-  const teban = obj["teban"];
-  if (typeof teban === "string" && teban.length > 0) {
-    attrs.teban = teban;
+  // reverse / no-slider は boolean 属性。キーが在れば値なし(null)でも truthy 扱い。
+  if (isFlagSet(obj, ["reverse"])) attrs.reverse = true;
+
+  const start = obj["start"];
+  if (typeof start === "number" && Number.isFinite(start)) {
+    attrs.start = String(start);
+  } else if (typeof start === "string" && start.length > 0) {
+    attrs.start = start;
   }
 
-  const nanteme = obj["nanteme"];
-  if (typeof nanteme === "number" && Number.isFinite(nanteme)) {
-    attrs.nanteme = String(nanteme);
-  } else if (typeof nanteme === "string" && nanteme.length > 0) {
-    attrs.nanteme = nanteme;
-  }
-
-  const noSliderKeyPresent = "no-slider" in obj || "noSlider" in obj;
-  const noSliderValue = obj["no-slider"] ?? obj["noSlider"];
-  if (noSliderKeyPresent && isTruthyOrPresent(noSliderValue)) {
-    attrs.noSlider = true;
-  }
+  if (isFlagSet(obj, ["no-slider", "noSlider"])) attrs.noSlider = true;
 
   return { ok: true, attrs };
+}
+
+/** いずれかのキーが存在し、その値が truthy（値なしを含む）なら true。 */
+function isFlagSet(obj: Record<string, unknown>, keys: string[]): boolean {
+  const key = keys.find((k) => k in obj);
+  return key !== undefined && isTruthyOrPresent(obj[key]);
 }
 
 function isTruthyOrPresent(v: unknown): boolean {
@@ -73,8 +75,8 @@ function isTruthyOrPresent(v: unknown): boolean {
 export function createBoardElement(doc: Document, attrs: BoardAttrs): HTMLElement {
   const el = doc.createElement("shogi-board");
   el.setAttribute("kif", attrs.kif);
-  if (attrs.teban !== undefined) el.setAttribute("teban", attrs.teban);
-  if (attrs.nanteme !== undefined) el.setAttribute("nanteme", attrs.nanteme);
+  if (attrs.reverse) el.setAttribute("reverse", "");
+  if (attrs.start !== undefined) el.setAttribute("start", attrs.start);
   if (attrs.noSlider) el.setAttribute("no-slider", "");
   return el;
 }

@@ -26,7 +26,7 @@ Reading mode と Live Preview の **二系統** で同じコードブロック�
 - `esbuild.config.mjs` の `alias.tsshogi` は **root の `node_modules/tsshogi` に固定**。submodule 側との二重バンドル防止。tsshogi 関連で `instanceof` が通らない等の症状が出たらここを疑う。
 - `<shogi-board>` は CustomElementRegistry 仕様上アンレジスター不可。プラグインリロード後に新しい `main.js` を完全反映させるには Obsidian 自体の再起動が必要。
 - 受理するフェンス名は `shogi-board` と `shogi` の 2 つ。追加するなら `src/main.ts` の processor 登録と `src/editor/block-scan.ts` の `ACCEPTED_FENCES` 両方を更新。
-- `no-slider` の真偽判定 (`src/parse.ts` の `isTruthyOrPresent`) は独特: **値なし / `null` / `undefined` も truthy 扱い**、`false` / `no` / `0` のみ falsy。
+- `reverse` / `no-slider` の真偽判定 (`src/parse.ts` の `isTruthyOrPresent`) は独特: **値なし / `null` / `undefined` も truthy 扱い**、`false` / `no` / `0` のみ falsy。
 - **popout ウィンドウ非対応**: `defineShogiBoard()` はメインウィンドウの `customElements` にしか登録しないため、popout では `<shogi-board>` がアップグレードされず盤自体が描画されない。設定タブの CSS 変数上書き（`document.head` への style 挿入）も同様に反映されない。対応するなら `workspace.on("window-open")` で要素登録 + style 複製が必要（別 window realm への custom element 登録が Electron で通るかは要実機検証）。
 - `main.js` は esbuild の生成物。手編集しない。
 
