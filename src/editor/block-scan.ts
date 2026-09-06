@@ -10,26 +10,39 @@ export type ShogiBlock = {
 const FENCE_RE = /^( {0,3})(`{3,}|~{3,})[ \t]*([\w-]+)?[ \t]*$/;
 const ACCEPTED_FENCES = new Set(["shogi-board", "shogi"]);
 
+// 構文木にコードブロック系ノードが 1 つも見えないときだけ line-walk に落とす。
+// line-walk はネスト文脈(外側フェンス内の例示コード等)を判定できないため、
+// あくまでノード名の前提が崩れた場合の保険。
 export function scanShogiBlocks(state: EditorState): ShogiBlock[] {
-  const blocks = scanViaSyntaxTree(state);
-  if (blocks.length > 0) return blocks;
+  const result = scanViaSyntaxTree(state);
+  if (result.sawCodeblockNodes) return result.blocks;
   return scanViaLineWalk(state);
 }
 
-function scanViaSyntaxTree(state: EditorState): ShogiBlock[] {
+type TreeScanResult = {
+  blocks: ShogiBlock[];
+  sawCodeblockNodes: boolean;
+};
+
+function scanViaSyntaxTree(state: EditorState): TreeScanResult {
   const blocks: ShogiBlock[] = [];
+  let sawCodeblockNodes = false;
   const tree = syntaxTree(state);
   let pendingBegin: number | null = null;
 
   tree.iterate({
     enter(node) {
+      // Obsidian のノード名は複数クラスを _ で結合した複合名
+      // (例: HyperMD-codeblock_HyperMD-codeblock-begin_...)なので includes で判定する。
       const name = node.type.name;
-      if (name.startsWith("HyperMD-codeblock-begin")) {
+      if (!name.includes("HyperMD-codeblock")) return;
+      sawCodeblockNodes = true;
+      if (name.includes("HyperMD-codeblock-begin")) {
         if (pendingBegin !== null) return;
         const beginLine = state.doc.lineAt(node.from);
         if (!matchesShogiFence(beginLine.text)) return;
         pendingBegin = beginLine.number;
-      } else if (name.startsWith("HyperMD-codeblock-end")) {
+      } else if (name.includes("HyperMD-codeblock-end")) {
         if (pendingBegin === null) return;
         const beginLine = state.doc.line(pendingBegin);
         const endLine = state.doc.lineAt(node.from);
@@ -40,7 +53,7 @@ function scanViaSyntaxTree(state: EditorState): ShogiBlock[] {
     },
   });
 
-  return blocks;
+  return { blocks, sawCodeblockNodes };
 }
 
 function scanViaLineWalk(state: EditorState): ShogiBlock[] {

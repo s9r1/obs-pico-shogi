@@ -117,7 +117,6 @@ export class PicoShogiSettingTab extends PluginSettingTab {
     const { containerEl } = this;
     containerEl.empty();
 
-    containerEl.createEl("h2", { text: "Pico Shogi Viewer 表示設定" });
     const desc = containerEl.createEl("p");
     desc.appendText(
       "各項目は pico-shogi が公開する CSS 変数を上書きします。空欄なら pico-shogi のデフォルト値が使われます。色は CSS の任意の指定形式（#hex / rgb() / rgba() / カラー名）で書けます。",

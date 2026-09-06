@@ -29,8 +29,14 @@ export class ShogiBoardWidget extends WidgetType {
     return root;
   }
 
-  updateDOM(_dom: HTMLElement): boolean {
-    return true;
+  updateDOM(): boolean {
+    // source が変わったら toDOM で作り直す(true を返すと古い盤面が使い回される)。
+    return false;
+  }
+
+  // 既定セル 30px の 9x9 盤 + 駒台 + スライダーのおおよその高さ。
+  get estimatedHeight(): number {
+    return 350;
   }
 
   ignoreEvent(): boolean {
